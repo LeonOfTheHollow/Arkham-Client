@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import './App.css';
+//import './App.css';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import './index.css';
+//import './index.css';
 import Dashboard from './components/Dashboard';
 import { connect } from 'react-redux';
 
@@ -17,9 +17,7 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <div className="App" id="App">
           <Route path="/" render={() => <Dashboard/>} exact />
-        </div>
       </Router>
     );
   }

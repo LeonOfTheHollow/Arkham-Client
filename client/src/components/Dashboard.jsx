@@ -10,6 +10,8 @@ class Dashboard extends Component {
 
   async componentDidMount() {
     const uuID = localStorage.getItem('uuID');
+    await this.props.fetchCurrentGame(uuID);
+    await this.props.fetchAllGames(uuID);
   }
 
   render(){

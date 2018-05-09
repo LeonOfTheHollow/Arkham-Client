@@ -9,7 +9,7 @@ class GameDisplay extends Component {
     return (
       <div>
         {this.props.currentGame ? (
-          <div>
+          <div className="Game-Container">
             <Investigator />
             <TextLog />
             <Threat />

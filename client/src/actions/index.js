@@ -5,6 +5,7 @@ export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const GAME_RETRIEVED = "GAME_RETRIEVED";
 export const ALL_GAMES_RETRIEVED = "ALL_GAMES_RETRIEVED";
 export const SELECTED_INVESTIGATOR = "SELECTED_INVESTIGATOR";
+export const USER_PROF_RETRIEVED = "USER_PROF_RETRIEVED";
 
 const ROOT_URL = "http://localhost:5050";
 
@@ -73,7 +74,25 @@ export const fetchCurrentGame = () => {
         },
       })
     } catch(e) {
-      console.log("There was a problem with the populate action: ", e);
+      console.log("There was a problem fetching the lastest game state: ", e);
+    }
+  }
+}
+
+export const fetchUserInfo = () => {
+  const uuID = localStorage.getItem('uuID');
+  return async dispatch => {
+    try {
+      console.log("About to request fresh user info.")
+      const currentUser = await axios.get(`${ROOT_URL}/users/${uuID}`);
+      if (currentUser) dispatch({
+        type: USER_PROF_RETRIEVED,
+        payload: {
+          currentUser,
+        },
+      })
+    } catch(e) {
+      console.log("There was a problem fetching the latest user state: ", e);
     }
   }
 }
@@ -103,9 +122,21 @@ export const selectInvestigator = (userId, gameId, jobToClaim) => {
   return async dispatch => {
     try {
       console.log(`About to make request to claim character with: ${userId}, ${gameId}, ${jobToClaim}\n`)
-      await axios.post(`${ROOT_URL}/claim-investigator`, { userId, gameId, jobToClaim })
+      const res = await axios.post(`${ROOT_URL}/claim-investigator`, { userId, gameId, jobToClaim });
+      console.log("Here is the result of requesting the investigator select:\n", res);
     } catch(e) {
       console.log(`\nProblem selecting investigator: ${e}\n`);
+    }
+  }
+}
+
+export const takeAction = (gameId, move) => {
+  return async dispatch => {
+    try {
+      const game = await axios.post(`${ROOT_URL}/act`, { gameId, move });
+      console.log("Gamestate after acting is: ", game);
+    } catch(e) {
+      console.log("Problem communicating with the server.")
     }
   }
 }

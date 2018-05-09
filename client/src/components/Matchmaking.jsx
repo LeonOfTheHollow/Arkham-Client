@@ -59,9 +59,9 @@ class Matchmaker extends Component {
         </form>
         {this.props.availableGames ? <div className="Available-Games">
           {
-            this.props.availableGames.gameIds.map(gameId => {
-              if (gameId)return (
-                <div>
+            this.props.availableGames.gameIds.map((gameId, i) => {
+              if (gameId) return (
+                <div key={i}>
                   {gameId}
                 </div>
               )

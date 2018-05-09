@@ -156,6 +156,13 @@
   border: gray 1px solid;
   padding: 8px;
 }
+.investigator-minitile {
+  border: black solid 1px;
+}
+.Game-Container {
+  display: flex;
+  justify-content: space-evenly;
+}
 * {
   box-sizing: border-box;
 }

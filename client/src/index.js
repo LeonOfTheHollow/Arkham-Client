@@ -8,10 +8,12 @@ import { Provider } from 'react-redux';
 import rootReducer from './reducers/index';
 import AccessControl from './components/AccessControl';
 
-import './index.css';
+//import './index.css';
 import App from './App';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
+
+import "./styles/css/index.css";
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk)(createStore);
 const store = createStoreWithMiddleware(rootReducer);
