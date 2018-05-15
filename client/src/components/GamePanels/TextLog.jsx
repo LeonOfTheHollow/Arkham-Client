@@ -6,11 +6,11 @@ import { takeAction, fetchCurrentGame } from '../../actions/index';
 class TextLog extends Component {
 
   async componentDidMount() {
-    const uuID = localStorage.getItem('uuID');
-    await this.props.fetchCurrentGame(uuID);
+    await this.props.fetchCurrentGame();
   }
 
   async handleContextBtnPress(type, payload) {
+    console.log("About to make a request to the server using this playerId: ", this.props.currentPlayer._id);
     const res = await this.props.takeAction(this.props.currentGame._id, {
       type,
       payload,
@@ -20,34 +20,45 @@ class TextLog extends Component {
   }
 
   render() {
-    return (
-      <div>
-        {this.props.currentInvestigator ? 
-          <div className="Choices-Window">
-            <div className="Choices-Window__Narration">
-              {this.props.currentInvestigator.clientState ? this.props.currentInvestigator.clientState.narration : "Loading..."}
-            </div>
-            {this.props.currentInvestigator.clientState ?
-              <div className="Choices-Window__Context-Buttons">
-                {
-                  this.props.currentInvestigator.clientState.contextButtons.map(contextButton => {
-                    return (
-                      <button onClick={async () => {
-                        await this.handleContextBtnPress(contextButton.type, contextButton.payload);
-                        await this.props.fetchCurrentGame();
-                        }
-                      }>
-                        {contextButton.text}
-                      </button>
-                      );
-                    })
-                }
+    try {
+      console.log("Received client state to render ", this.props.currentInvestigator.clientState);
+      return (
+        <div>
+          {this.props.currentInvestigator ? 
+            <div className="Choices-Window">
+              <div className="Choices-Window__Narration">
+                {this.props.currentInvestigator.clientState ? this.props.currentInvestigator.clientState.narration : "Loading..."}
               </div>
-            : "Loading..."}
-          </div>
-        : null}
-      </div>
-    )
+              {this.props.currentInvestigator.clientState ?
+                <div className="Choices-Window__Context-Buttons">
+                  {
+                    this.props.currentInvestigator.clientState.contextButtons.map(contextButton => {
+                      return (
+                        <button onClick={async () => {
+                          await this.handleContextBtnPress(contextButton.type, contextButton.payload);
+                          await this.props.fetchCurrentGame();
+                          }
+                        }>
+                          {contextButton.text}
+                        </button>
+                        );
+                      })
+                  }
+                </div>
+              : "Loading..."}
+            </div>
+          : null}
+        </div>
+      )
+    } catch(e) {
+      console.log("Text Log rendering error: ", e);
+      return (
+        <div className="error-log">
+          Whoops! A nightgaunt flew off with some code you need. The error message should be in the console.
+        </div>
+      )
+    }
+    
   }
 }
 

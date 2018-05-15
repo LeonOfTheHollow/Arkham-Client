@@ -10,9 +10,9 @@ class GameDisplay extends Component {
       <div>
         {this.props.currentGame ? (
           <div className="Game-Container">
-            <Investigator />
-            <TextLog />
-            <Threat />
+            <div className="Investigator-Tile"><Investigator /></div>
+            <div className="TextLog-Tile"><TextLog /></div>
+            <div className="Threat-Tile"><Threat /></div>
           </div>
         ) : null}
       </div>

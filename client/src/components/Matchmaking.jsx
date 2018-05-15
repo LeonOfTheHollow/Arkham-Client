@@ -61,7 +61,10 @@ class Matchmaker extends Component {
           {
             this.props.availableGames.gameIds.map((gameId, i) => {
               if (gameId) return (
-                <div key={i}>
+                <div key={i} onClick={async () => {
+                  await this.props.joinGame(gameId);
+                  await this.props.fetchCurrentGame();
+                }}>
                   {gameId}
                 </div>
               )

@@ -1,25 +1,38 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { selectInvestigator, fetchCurrentGame, fetchUserInfo } from '../../actions';
+import { selectInvestigator, fetchCurrentGame, fetchUserInfo, takeAction } from '../../actions';
 
 class Investigator extends Component {
 
-  // handleInvestigatorSelect = async (event) => {
-  //   event.preventDefault();
-  //   console.log("\n",event.target,"\n");
-  //   await this.props.selectInvestigator(this.props.currentPlayer, this.props.currentGame, investigator.job);
-  // }
+  async componentDidMount() {
+    await this.props.fetchCurrentGame();
+  }
+
+  async handleCharSelect(job) {
+    await this.props.selectInvestigator(this.props.currentPlayer, this.props.currentGame, job);
+  }
+
+  async changeSlider(targetSlider, targetValue) {
+    const res = await this.props.takeAction(this.props.currentGame._id, {
+      type: "CHANGE_SLIDER",
+      payload: { targetSlider, targetValue },
+      player: this.props.currentPlayer._id,
+    });
+    const updatedGame = await this.props.fetchCurrentGame();
+    console.log("Server response from changing slider:", updatedGame);
+  }
 
   render() {
+    console.log("Current investigator props are:", this.props);
     if (this.props.currentPlayer.currentJob === 'None') return (
-      <div>
+      <div className="Matchmaker">
         {
           this.props.currentGame.game.investigators.map((investigator, i) => {
             return (
               <div
                 className="investigator-minitile"
                 onClick={async () => {
-                  await this.props.selectInvestigator(this.props.currentPlayer, this.props.currentGame, investigator.job);
+                  await this.handleCharSelect(investigator.job);
                   await this.props.fetchUserInfo();
                   await this.props.fetchCurrentGame();
                   }
@@ -34,10 +47,176 @@ class Investigator extends Component {
       </div>
     );
     else {
+      const thisInvestigator = this.props.currentInvestigator;
+      const statValues = {
+        speed: thisInvestigator.minSpeed + thisInvestigator.topPointer + thisInvestigator.speedBuffs.reduce(((total, buff) => total + buff.value), 0),
+        sneak: thisInvestigator.minSneak + 3 - thisInvestigator.topPointer + thisInvestigator.sneakBuffs.reduce(((total, buff) => total + buff.value), 0),
+        will: thisInvestigator.minWill + thisInvestigator.midPointer + thisInvestigator.willBuffs.reduce(((total, buff) => total + buff.value), 0),
+        fight: thisInvestigator.minFight + 3 - thisInvestigator.midPointer + thisInvestigator.fightBuffs.reduce(((total, buff) => total + buff.value), 0),
+        lore: thisInvestigator.minLore + thisInvestigator.bottomPointer + thisInvestigator.loreBuffs.reduce(((total, buff) => total + buff.value), 0),
+        luck: thisInvestigator.minLuck + 3 - thisInvestigator.bottomPointer + thisInvestigator.luckBuffs.reduce(((total, buff) => total + buff.value), 0),
+      };
+      console.log("Calculated stat values for this investigator:", statValues);
       return (
-        <div>
-          <h4>{this.props.currentInvestigator.name}</h4>
-          <p>The {this.props.currentInvestigator.job}</p>
+        <div className="Investigator-Sheet">
+          <div className="Investigator-Sheet__header">
+            <div className="Investigator-Sheet__stamina">
+              {this.props.currentInvestigator.stamina}
+            </div>
+            <div className="Investigator-Sheet__plaque">
+              <div className="Investigator-Sheet__name">
+                {this.props.currentInvestigator.name}
+              </div>
+              <div className="Investigator-Sheet__job">
+                The {this.props.currentInvestigator.job}
+              </div>
+            </div>
+            <div className="Investigator-Sheet__sanity">
+              {this.props.currentInvestigator.sanity}
+            </div>
+          </div>
+          <div className="Investigator-Sheet__stats">
+            <div className="Investigator-Sheet__statblock">
+              <div className="Investigator-Sheet__stat">
+                <div>Speed</div>
+                <div>{statValues.speed}</div>
+              </div>
+              <div className="Investigator-Sheet__statbar">
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("top_slider", 3)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("top_slider", 2)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("top_slider", 1)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("top_slider", 0)}>
+                    X
+                  </div>
+                </div>
+              </div>
+              <div className="Investigator-Sheet__stat">
+                <div>Sneak</div>
+                <div>{statValues.sneak}</div>
+              </div>
+            </div>
+            <div className="Investigator-Sheet__statblock">
+              <div className="Investigator-Sheet__stat">
+                <div>Will</div>
+                <div>{statValues.will}</div>
+              </div>
+              <div className="Investigator-Sheet__statbar">
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("mid_slider", 3)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("mid_slider", 2)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("mid_slider", 1)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("mid_slider", 0)}>
+                    X
+                  </div>
+                </div>
+              </div>
+              <div className="Investigator-Sheet__stat">
+                <div>Fight</div>
+                <div>{statValues.fight}</div>
+              </div>
+            </div>
+            <div className="Investigator-Sheet__statblock">
+              <div className="Investigator-Sheet__stat">
+                <div>Lore</div>
+                <div>{statValues.lore}</div>
+              </div>
+              <div className="Investigator-Sheet__statbar">
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("bottom_slider", 3)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("bottom_slider", 2)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("bottom_slider", 1)}>
+                    X
+                  </div>
+                </div>
+                <div className="Investigator-Sheet__statbar-block">
+                  <div onClick={async () => this.changeSlider("bottom_slider", 0)}>
+                    X
+                  </div>
+                </div>
+              </div>
+              <div className="Investigator-Sheet__stat">
+                <div>Luck</div>
+                <div>{statValues.luck}</div>
+              </div>
+            </div>
+          </div>
+          <div className="Investigator-Sheet__resources">
+            Focus: {this.props.currentInvestigator.focusPoints}/{this.props.currentInvestigator.focusMax}
+            Movement: {this.props.currentInvestigator.movePoints}
+          </div>
+          <div className="Investigator-Sheet__inventory-innates">
+            {this.props.currentInvestigator.innates.map((innate, i) => {
+              return (
+                <div className="Investigator-Sheet__tile" key={i}>
+                  {innate.name}
+                </div>
+              );
+            })}
+          </div>
+          <div className="Investigator-Sheet__inventory-spells">
+            {this.props.currentInvestigator.spells.map((spell, i) => {
+              return (
+                <div className="Investigator-Sheet__tile" key={i}>
+                  {spell.name}
+                </div>
+              );
+            })}
+          </div>
+          <div className="Investigator-Sheet__inventory-items">
+            {this.props.currentInvestigator.bag.map((item, i) => {
+              return (
+                <div
+                  className="Investigator-Sheet__tile"
+                  key={i}
+                  onClick={() => this.props.equipItem(item)}
+                >
+                  {item.name}
+                </div>
+              );
+            })}
+          </div>
+          {/* <div className="Investigator-Sheet__inventory-equipment">
+            {this.props.currentInvestigator.equipment.map((hand, i) => {
+              return (
+                <div className="Investigator-Sheet__tile" key={i}>
+                  {hand.name}
+                </div>
+              );
+            })}
+          </div> */}
         </div>
       )
     }
@@ -55,4 +234,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, { selectInvestigator, fetchCurrentGame, fetchUserInfo })(Investigator);
+export default connect(mapStateToProps, { selectInvestigator, fetchCurrentGame, fetchUserInfo, takeAction })(Investigator);
