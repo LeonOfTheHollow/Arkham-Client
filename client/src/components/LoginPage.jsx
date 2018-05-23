@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 class LoginPage extends Component {
   state = {
-    username: 'miss fisher',
-    password: 'cat',
+    username: 'Username here...',
+    password: 'Password here...',
   };
 
   render() {

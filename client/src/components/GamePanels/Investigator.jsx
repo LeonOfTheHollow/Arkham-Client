@@ -19,7 +19,33 @@ class Investigator extends Component {
       player: this.props.currentPlayer._id,
     });
     const updatedGame = await this.props.fetchCurrentGame();
-    console.log("Server response from changing slider:", updatedGame);
+  }
+
+  async useItem(item) {
+    const res = await this.props.takeAction(this.props.currentGame._id, {
+      type: "USE_ITEM",
+      payload: item.name,
+      player: this.props.currentPlayer._id,
+    });
+    const updatedGame = await this.props.fetchCurrentGame();
+  }
+
+  async equipItem(item) {
+    const res = await this.props.takeAction(this.props.currentGame._id, {
+      type: "EQUIP_ITEM",
+      payload: item,
+      player: this.props.currentPlayer._id,
+    });
+    const updatedGame = await this.props.fetchCurrentGame();
+  }
+
+  async unequipItem(hand) {
+    const res = await this.props.takeAction(this.props.currentGame._id, {
+      type: "UNEQUIP_ITEM",
+      payload: hand,
+      player: this.props.currentPlayer._id,
+    });
+    const updatedGame = await this.props.fetchCurrentGame();
   }
 
   render() {
@@ -49,14 +75,13 @@ class Investigator extends Component {
     else {
       const thisInvestigator = this.props.currentInvestigator;
       const statValues = {
-        speed: thisInvestigator.minSpeed + thisInvestigator.topPointer + thisInvestigator.speedBuffs.reduce(((total, buff) => total + buff.value), 0),
-        sneak: thisInvestigator.minSneak + 3 - thisInvestigator.topPointer + thisInvestigator.sneakBuffs.reduce(((total, buff) => total + buff.value), 0),
-        will: thisInvestigator.minWill + thisInvestigator.midPointer + thisInvestigator.willBuffs.reduce(((total, buff) => total + buff.value), 0),
-        fight: thisInvestigator.minFight + 3 - thisInvestigator.midPointer + thisInvestigator.fightBuffs.reduce(((total, buff) => total + buff.value), 0),
-        lore: thisInvestigator.minLore + thisInvestigator.bottomPointer + thisInvestigator.loreBuffs.reduce(((total, buff) => total + buff.value), 0),
-        luck: thisInvestigator.minLuck + 3 - thisInvestigator.bottomPointer + thisInvestigator.luckBuffs.reduce(((total, buff) => total + buff.value), 0),
+        speed: thisInvestigator.minSpeed + thisInvestigator.topPointer + thisInvestigator.speedBuffs.reduce(((total, buff) => total + buff.val), 0),
+        sneak: thisInvestigator.minSneak + 3 - thisInvestigator.topPointer + thisInvestigator.sneakBuffs.reduce(((total, buff) => total + buff.val), 0),
+        will: thisInvestigator.minWill + thisInvestigator.midPointer + thisInvestigator.willBuffs.reduce(((total, buff) => total + buff.val), 0),
+        fight: thisInvestigator.minFight + 3 - thisInvestigator.midPointer + thisInvestigator.fightBuffs.reduce(((total, buff) => total + buff.val), 0),
+        lore: thisInvestigator.minLore + thisInvestigator.bottomPointer + thisInvestigator.loreBuffs.reduce(((total, buff) => total + buff.val), 0),
+        luck: thisInvestigator.minLuck + 3 - thisInvestigator.bottomPointer + thisInvestigator.luckBuffs.reduce(((total, buff) => total + buff.val), 0),
       };
-      console.log("Calculated stat values for this investigator:", statValues);
       return (
         <div className="Investigator-Sheet">
           <div className="Investigator-Sheet__header">
@@ -174,8 +199,11 @@ class Investigator extends Component {
             </div>
           </div>
           <div className="Investigator-Sheet__resources">
-            Focus: {this.props.currentInvestigator.focusPoints}/{this.props.currentInvestigator.focusMax}
-            Movement: {this.props.currentInvestigator.movePoints}
+            Focus: {this.props.currentInvestigator.focusPoints}/{this.props.currentInvestigator.focusMax+"\n"}
+            Movement: {this.props.currentInvestigator.movePoints+"\n"}
+            Money: {this.props.currentInvestigator.wallet+"\n"}
+            Clues: {this.props.currentInvestigator.clues+"\n"}
+            Trophy: {this.props.currentInvestigator.trophy+"\n"}
           </div>
           <div className="Investigator-Sheet__inventory-innates">
             {this.props.currentInvestigator.innates.map((innate, i) => {
@@ -201,22 +229,30 @@ class Investigator extends Component {
                 <div
                   className="Investigator-Sheet__tile"
                   key={i}
-                  onClick={() => this.props.equipItem(item)}
+                  onClick={() => {
+                    if (item.hands > 0) this.equipItem(item)
+                    else this.useItem(item);
+                  }}
                 >
                   {item.name}
                 </div>
               );
             })}
           </div>
-          {/* <div className="Investigator-Sheet__inventory-equipment">
-            {this.props.currentInvestigator.equipment.map((hand, i) => {
-              return (
-                <div className="Investigator-Sheet__tile" key={i}>
-                  {hand.name}
-                </div>
-              );
-            })}
-          </div> */}
+          <div className="Investigator-Sheet__inventory-equipment">
+            <div
+              className="Investigator-Sheet__hand"
+              onClick={() => this.unequipItem('right')}
+            >
+              {this.props.currentInvestigator.rightHand.name}
+            </div>
+            <div
+              className="Investigator-Sheet__hand"
+              onClick={() => this.unequipItem('left')}
+            >
+              {this.props.currentInvestigator.leftHand.name}
+            </div>
+          </div>
         </div>
       )
     }
@@ -224,7 +260,6 @@ class Investigator extends Component {
 }
 
 const mapStateToProps = state => {
-  console.log("The entire state received was: \n", state, "\n");
   const uuID = localStorage.getItem('uuID');
   const currentInvestigator = state.currentGame.game.investigators.find(investigator => investigator.job === state.currentUser.currentJob);
   return {

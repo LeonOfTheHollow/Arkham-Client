@@ -6,6 +6,7 @@ import Threat from './GamePanels/Threat.jsx';
 
 class GameDisplay extends Component {
   render() {
+    console.log("This is in the Game component's state:", this.props.currentGame);
     return (
       <div>
         {this.props.currentGame ? (
