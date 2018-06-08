@@ -24,7 +24,7 @@ class Investigator extends Component {
   async useItem(item) {
     const res = await this.props.takeAction(this.props.currentGame._id, {
       type: "USE_ITEM",
-      payload: item.name,
+      payload: item,
       player: this.props.currentPlayer._id,
     });
     const updatedGame = await this.props.fetchCurrentGame();
@@ -234,7 +234,7 @@ class Investigator extends Component {
                     else this.useItem(item);
                   }}
                 >
-                  {item.name}
+                  {item.name} {item.charges ? (item.charges) : null}
                 </div>
               );
             })}
